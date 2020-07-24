@@ -7,9 +7,10 @@ import BadgeForm from '../components/BadgeForm'
 import PageLoading from '../components/PageLoading'
 import api from '../api';
 
-class BadgeNew extends React.Component {
+class BadgeEdit extends React.Component {
     state = {
-        loading: false, 
+        loading: true,
+        error: null, 
         form: {
             firstName: '',
             lastName: '',
@@ -17,6 +18,24 @@ class BadgeNew extends React.Component {
             jobTitle: '',
             twitter: '',
         }
+    }
+
+    componentDidMount(){
+        this.fetchData()
+    }
+
+    fetchData = async e => {
+        this.setState({loading:true, error:null})
+
+        try {
+            const data = await api.badges.read(this.props.match.params.badgeId)
+            this.setState({loading: false, form: data})
+        } catch (error) {
+
+            this.setState({loading: false, error: error})
+        }
+
+        
     }
 
     handleChange = e => {
@@ -34,7 +53,7 @@ class BadgeNew extends React.Component {
         this.setState({ loading: true,error: null })
 
         try {
-            await api.badges.create(this.state.form)
+            await api.badges.update(this.props.match.params.badgeId,this.state.form)
             this.setState({loading:false})
 
             this.props.history.push('/badges')
@@ -60,7 +79,7 @@ class BadgeNew extends React.Component {
                             <Badge firstName={this.state.form.firstName || 'FIRST_NAME'} lastName={this.state.form.lastName || 'LAST_NAME'} jobTitle={this.state.form.jobTitle || 'JOB_TITLE'} twitter={this.state.form.twitter || 'twitter'} email={this.state.form.email || 'EMAIL'} avatarUrl="https://avatars2.githubusercontent.com/u/30576771?s=400&u=3a40fceace8ce674c460d54837bed75993359d84&v=4" error={this.state.error} />
                         </div>
                         <div className="col">
-                            <h1>New</h1>
+                            <h1>Edit</h1>
                             <BadgeForm onChange={this.handleChange} onSubmit={this.handleSubmit} formValues={this.state.form} />
 
                         </div>
@@ -71,4 +90,4 @@ class BadgeNew extends React.Component {
     }
 }
 
-export default BadgeNew
+export default BadgeEdit
